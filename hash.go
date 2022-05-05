@@ -20,18 +20,31 @@ func init() {
 
 func main() {
 
-	_, err := ioutil.ReadFile("maury.txt")
+	mary, err := ioutil.ReadFile("maury.txt")
 
 	if err != nil {
 		fmt.Println("ERROR READING")
 	}
 
-	smallD1 := []uint8{100, 20, 73, 20, 43, 120, 45, 20, 36}
-	smallD2 := []uint8{100, 20, 73, 20, 120, 45, 20, 36}
+	maryHash := hash(mary)
 
-	fmt.Println("original hash s1", hash(smallD1))
-	fmt.Println("original hash s0", hash(smallD2))
-	fmt.Println("New hash s1", fastforward(hash(smallD2), 1))
+	maury, err := ioutil.ReadFile("maury.txt")
+
+	if err != nil {
+		fmt.Println("ERROR READING")
+	}
+
+	mauryHash := hash(maury)
+
+	fmt.Println(maryHash)
+	fmt.Println(mauryHash)
+
+	// smallD1 := []uint8{100, 20, 73, 20, 43, 120, 45, 20, 36}
+	// smallD2 := []uint8{100, 20, 73, 20, 120, 45, 20, 36}
+
+	// fmt.Println("original hash s1", hash(smallD1))
+	// fmt.Println("original hash s0", hash(smallD2))
+	// fmt.Println("New hash s1", fastforward(hash(smallD2), 1))
 }
 
 /* Fastforwards the hash so that 2 lsh's can be compared
