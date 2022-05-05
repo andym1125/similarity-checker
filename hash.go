@@ -20,7 +20,7 @@ func init() {
 
 func main() {
 
-	mary, err := ioutil.ReadFile("maury.txt")
+	mary, err := ioutil.ReadFile("mary.txt")
 
 	if err != nil {
 		fmt.Println("ERROR READING")
@@ -55,8 +55,8 @@ func fastforward(data []uint8, to uint8) []uint8 {
 
 	newData := data[1:]
 
-	var i uint8 = 0
-	for i = 0; i < to-data[0]; i++ {
+	var i int = 0
+	for i = 0; i < int(to-data[0])*256; i++ {
 
 		newData = append(newData, 0)
 		newData = slim(newData)
@@ -84,15 +84,33 @@ func hash(data []uint8) []uint8 {
 		newData = append(newData, sum[0])
 	}
 
-	/* Slim down hash to desired size */
-	var passes uint8 = 0
+	/* Slim down hash to desired size,
+	 * Counting # passes takes to get there */
+	var passes uint = 0
 	for len(newData) != hash_size {
 		newData = slim(newData)
 		passes++
+		//fmt.Println(passes)
+	}
+
+	/* Do an additional number of passes until next
+	 * multiple of 256
+	 * PADDING MUST ALTERNATE SIDES */
+	var passCount = (passes / 256) + 1
+	fmt.Println(passes, passCount)
+	for i := passes; i < passCount*256; i++ {
+
+		if i%2 == 0 {
+			newData = append(newData, 0)
+		} else {
+			newData = append([]uint8{0}, newData...)
+		}
+
+		newData = slim(newData)
 	}
 
 	/* Prepend # passes */
-	newData = append([]uint8{passes}, newData...)
+	newData = append([]uint8{uint8(passCount)}, newData...) //TODO This uint8 cast is really hacky...
 
 	return newData
 }
