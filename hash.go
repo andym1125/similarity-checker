@@ -3,128 +3,118 @@ package main
 import (
 	"crypto/md5"
 	"fmt"
-	"io/ioutil"
+	"math"
 )
 
-var uniset []byte
-var hash_size int = 64
-var chunk = 55 //md5 will pad 1 byte
+var uniset [][]uint8
 
 func init() {
 
-	var i uint8
-	for i = 0; i < 128; i++ {
-		uniset = append(uniset, i)
+	var a, b, c uint8
+	for a = 0; a < 128; a++ {
+		for b = 0; b < 128; b++ {
+			for c = 0; c < 128; c++ {
+				uniset = append(uniset, []uint8{a, b, c})
+			}
+		}
 	}
 }
 
-func main() {
+// func main() {
 
-	mary, err := ioutil.ReadFile("mary.txt")
+// 	mary, err := ioutil.ReadFile("control.txt")
 
-	if err != nil {
-		fmt.Println("ERROR READING")
-	}
+// 	if err != nil {
+// 		fmt.Println("ERROR READING")
+// 	}
 
-	maryHash := hash(mary)
+// 	maury, err2 := ioutil.ReadFile("different.txt")
 
-	maury, err := ioutil.ReadFile("maury.txt")
+// 	if err2 != nil {
+// 		fmt.Println("ERROR READING")
+// 	}
 
-	if err != nil {
-		fmt.Println("ERROR READING")
-	}
+// 	hmary := hash(mary)
+// 	hmaury := hash(maury)
 
-	mauryHash := hash(maury)
+// 	quickCompare(hmary, hmaury)
 
-	fmt.Println(maryHash)
-	fmt.Println(mauryHash)
+// }
 
-	// smallD1 := []uint8{100, 20, 73, 20, 43, 120, 45, 20, 36}
-	// smallD2 := []uint8{100, 20, 73, 20, 120, 45, 20, 36}
-
-	// fmt.Println("original hash s1", hash(smallD1))
-	// fmt.Println("original hash s0", hash(smallD2))
-	// fmt.Println("New hash s1", fastforward(hash(smallD2), 1))
-}
-
-/* Fastforwards the hash so that 2 lsh's can be compared
- * param to indicates number of passes to complete in total
- * the first bytes of data indicates how many passes have already been completed
- */
-func fastforward(data []uint8, to uint8) []uint8 {
-
-	newData := data[1:]
-
-	var i int = 0
-	for i = 0; i < int(to-data[0])*256; i++ {
-
-		newData = append(newData, 0)
-		newData = slim(newData)
-	}
-
-	return append([]uint8{to}, newData...)
-}
-
-/* Performs a locality sensitive hash
- * First byte indicates how many passes
- * Next 64 indicate the hash itself */
 func hash(data []uint8) []uint8 {
 
-	/* Padding */
-	for i := len(data); i < hash_size; i++ {
-		data = append(data, 0)
-	}
-
-	/* Initial hash of data */
-	var newData []uint8
+	hasher := md5.New()
+	var output []uint8
+	var currStr []uint8
 	for i := 0; i < len(data); i++ {
 
-		t := []uint8{data[i]}
-		sum := md5.Sum(t)
-		newData = append(newData, sum[0])
-	}
+		/* Break words on control characters, ie whitespace */
+		if isControl(data[i]) {
 
-	/* Slim down hash to desired size,
-	 * Counting # passes takes to get there */
-	var passes uint = 0
-	for len(newData) != hash_size {
-		newData = slim(newData)
-		passes++
-		//fmt.Println(passes)
-	}
+			output = append(output, hasher.Sum(currStr)[0])
 
-	/* Do an additional number of passes until next
-	 * multiple of 256
-	 * PADDING MUST ALTERNATE SIDES */
-	var passCount = (passes / 256) + 1
-	fmt.Println(passes, passCount)
-	for i := passes; i < passCount*256; i++ {
-
-		if i%2 == 0 {
-			newData = append(newData, 0)
-		} else {
-			newData = append([]uint8{0}, newData...)
+			currStr = []uint8{}
+			hasher.Reset()
+			continue
 		}
 
-		newData = slim(newData)
+		currStr = append(currStr, data[i])
 	}
 
-	/* Prepend # passes */
-	newData = append([]uint8{uint8(passCount)}, newData...) //TODO This uint8 cast is really hacky...
-
-	return newData
+	return output
 }
 
-/* Slims the given intermediate hash from n bytes to n-1 bytes */
-func slim(data []uint8) []uint8 {
+func isControl(a uint8) bool {
 
-	var newData []uint8
-	for i := 0; i < len(data)-1; i++ {
+	return a == 32 || a == 10 || a == 13
+}
 
-		d := []uint8{data[i], data[i+1]}
-		sum := md5.Sum(d)
-		newData = append(newData, sum[0]) //Append last byte of checksum as new value
+func quickCompare(a []uint8, b []uint8) {
+
+	amap := make(map[uint8]int)
+	for i := 0; i < len(a); i++ {
+		amap[a[i]]++
 	}
 
-	return newData
+	bmap := make(map[uint8]int)
+	for i := 0; i < len(b); i++ {
+		bmap[a[i]]++
+	}
+
+	fmt.Println(amap)
+	fmt.Println(bmap)
+
+	var i uint8
+	dataPoints := 0
+	diffs := 0
+	for i = 0; i < 128; i++ {
+
+		d := int(math.Abs(float64(amap[i] - bmap[i])))
+		p := int(math.Max(float64(amap[i]), float64(bmap[i])))
+		dataPoints += p
+		diffs += d
+	}
+
+	fmt.Printf("%d percent different. %d differences out of %d data points",
+		int(float64(diffs)/float64(dataPoints)*100),
+		diffs,
+		dataPoints,
+	)
+}
+
+func compare(a []uint8, b []uint8) {
+	for i := 0; i < int(math.Max(float64(len(a)), float64(len(b)))); i++ {
+
+		if a[i] == 97 {
+			fmt.Print("-", "\t")
+		} else {
+			fmt.Print(a[i], "\t")
+		}
+
+		if b[i] == 97 {
+			fmt.Println("-")
+		} else {
+			fmt.Println(b[i])
+		}
+	}
 }
