@@ -7,37 +7,28 @@ import (
 	"net/http"
 )
 
+var (
+	buildHandler = http.FileServer(http.Dir("frontend/build"))
+)
+
 func main() {
 
 	r := http.NewServeMux()
-
-	r.HandleFunc("/check", index)
-	buildHandler := http.FileServer(http.Dir("frontend/build"))
-	r.Handle("/", buildHandler)
-
-	srv := &http.Server{
-		Handler: r,
-		Addr:    "127.0.0.1:8080",
-	}
+	r.HandleFunc("/", index)
 
 	fmt.Println("Listening on port 8080...")
-	log.Fatal(srv.ListenAndServe())
+	log.Fatal(http.ListenAndServe(":8080", r))
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "frontend/build/index.html")
-}
 
-func homePage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to the HomePage!")
-	fmt.Println("Endpoint Hit: homePage")
-}
+	if r.Method == "GET" {
 
-func handleRequests() {
-	http.HandleFunc("/", homePage)
-	log.Fatal(http.ListenAndServe(":10000", nil))
-}
+		buildHandler.ServeHTTP(w, r)
+		//http.ServeFile(w, r, "frontend/build/index.html")
+		fmt.Println("Get req", r.URL)
+	} else if r.Method == "POST" {
 
-// func main() {
-// 	handleRequests()
-// }
+		fmt.Println("Post req", r.Body)
+	}
+}
