@@ -6,7 +6,7 @@ import (
 	"math"
 )
 
-var uniset [][]uint8
+/*var uniset [][]uint8
 
 func init() {
 
@@ -18,28 +18,7 @@ func init() {
 			}
 		}
 	}
-}
-
-// func main() {
-
-// 	mary, err := ioutil.ReadFile("control.txt")
-
-// 	if err != nil {
-// 		fmt.Println("ERROR READING")
-// 	}
-
-// 	maury, err2 := ioutil.ReadFile("different.txt")
-
-// 	if err2 != nil {
-// 		fmt.Println("ERROR READING")
-// 	}
-
-// 	hmary := hash(mary)
-// 	hmaury := hash(maury)
-
-// 	quickCompare(hmary, hmaury)
-
-// }
+}/**/
 
 func hash(data []uint8) []uint8 {
 
@@ -48,10 +27,13 @@ func hash(data []uint8) []uint8 {
 	var currStr []uint8
 	for i := 0; i < len(data); i++ {
 
+		//fmt.Println("h", data[i])
+
 		/* Break words on control characters, ie whitespace */
 		if isControl(data[i]) {
 
-			output = append(output, hasher.Sum(currStr)[0])
+			hasher.Write(currStr) //TODO not most concise way to do this. Should leverage pkg hash better
+			output = append(output, hasher.Sum([]byte{})[0])
 
 			currStr = []uint8{}
 			hasher.Reset()
@@ -60,6 +42,7 @@ func hash(data []uint8) []uint8 {
 
 		currStr = append(currStr, data[i])
 	}
+	output = append(output, hasher.Sum(currStr)[0]) //last word
 
 	return output
 }

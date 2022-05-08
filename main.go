@@ -29,6 +29,12 @@ func index(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Get req", r.URL)
 	} else if r.Method == "POST" {
 
-		fmt.Println("Post req", r.Body)
+		if err := r.ParseForm(); err != nil {
+			fmt.Println("ParseForm() err: ", err)
+			return
+		}
+
+		fmt.Println("Hash: ", hash([]uint8(r.FormValue("txt"))))
+		http.ServeFile(w, r, "frontend/build/index.html")
 	}
 }
