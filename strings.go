@@ -24,11 +24,19 @@ func main() {
 
 	fmt.Println(len(s1), len(s2))
 
-	lcsm, i := LCSubstr(s1, s2)
-	printLCSMatrix(lcsm, i)
+	printSubstrArr(getCommonSubstrings(s1, s2))
 
-	ssa := calcCommonSubstrings(lcsm, s1)
-	printSubstrArr(ssa)
+	// lcsm, i := LCSubstr(s1, s2)
+	// printLCSMatrix(lcsm, i)
+
+	// ssa := calcCommonSubstrings(lcsm, s1)
+	// printSubstrArr(ssa)
+}
+
+func getCommonSubstrings(control []byte, foreign []byte) []Substring {
+
+	lcsm, _ := LCSubstr(control, foreign)
+	return calcCommonSubstrings(lcsm, control)
 }
 
 /* Prints the intermediate Least Common Suffix matrix.
