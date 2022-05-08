@@ -5,13 +5,18 @@ import (
 	"math"
 )
 
+const COMPARE_THRESH = 2
+
 func main() {
 
 	s1 := []byte("I've always wanted to ride my bicycle, and can't wait to ride it up on the highway.")
 	s2 := []byte("On a dark desert highway. I wanted to ride my bicycle.")
 
-	fmt.Println(s1, s2)
-	print2d(LCSubstr(s1, s2))
+	fmt.Println(len(s1), len(s2))
+
+	a, i := LCSubstr(s1, s2)
+	print2d(a, i)
+	compareInter(a)
 
 	// fmt.Println("Old", "Oldie")
 	// print2d(LCSubstr("Old", "Oldie"))
@@ -20,7 +25,15 @@ func main() {
 func print2d(a [][]int, i int) {
 	fmt.Println(i)
 	for _, x := range a {
-		fmt.Println(x)
+		for _, y := range x {
+
+			if y == 0 {
+				fmt.Print("- ")
+			} else {
+				fmt.Print(y, " ")
+			}
+		}
+		fmt.Println()
 	}
 }
 
@@ -32,18 +45,31 @@ type Substring struct {
 	fullString []byte
 }
 
-func compare(lcSubstrMatrix [][]int) []Substring {
+func compareInter(lcSubstrMatrix [][]int) []Substring {
+
+	//Reduce matrix by turning the array of arrays into
+	//   Array of maxes
+	var reduceSm []int
+	for _, x := range lcSubstrMatrix {
+
+		max, _ := max(x...)
+		reduceSm = append(reduceSm, max)
+	}
+
+	fmt.Println("compare", reduceSm, len(reduceSm))
+
+	//Until there are no more empty spaces, find comparisions (above certain threshold)
 
 	return []Substring{}
 }
 
+/* x is the one to check against, y is to check */
 func LCSubstr(x []byte, y []byte) ([][]int, int) {
 	m := len(x)
 	n := len(y)
 
 	lcSuff := make([][]int, 0)
 	for i := 0; i < m+1; i++ {
-		//lcSuff[i] = make([]int, n+1)
 		lcSuff = append(lcSuff, make([]int, n+1))
 	}
 	result := 0 //Store len of longest common substr
@@ -64,7 +90,6 @@ func LCSubstr(x []byte, y []byte) ([][]int, int) {
 
 				lcSuff[i][j] = 0
 			}
-
 		}
 	}
 
