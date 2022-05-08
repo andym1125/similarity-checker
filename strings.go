@@ -12,8 +12,7 @@ const COMPARE_THRESH = 3 //Exclusive
  * MARKED:		Perhaps under threshold, cannot initiate substring;
  				 CAN be used in another substring
  * UNVISITED:	Can initiate substring;
- 				 CAN be used in another substring
-*/
+ 				 CAN be used in another substring */
 const UNVISITED = 0
 const MARKED = 1
 const VISITED = 2
@@ -25,16 +24,20 @@ func main() {
 
 	fmt.Println(len(s1), len(s2))
 
-	a, i := LCSubstr(s1, s2)
-	print2d(a, i)
-	fmt.Println(compareInter(a))
+	lcsm, i := LCSubstr(s1, s2)
+	printLCSMatrix(lcsm, i)
 
-	// fmt.Println("Old", "Oldie")
-	// print2d(LCSubstr("Old", "Oldie"))
+	ssa := calcCommonSubstrings(lcsm, s1)
+	printSubstrArr(ssa)
 }
 
-func print2d(a [][]int, i int) {
-	fmt.Println(i)
+/* Prints the intermediate Least Common Suffix matrix.
+ * param: a The LCS matrix
+ * param: i The size of the largest LCS
+ */
+func printLCSMatrix(a [][]int, i int) {
+
+	fmt.Println("PrintLCSMatrix: size", i)
 	for _, x := range a {
 		for _, y := range x {
 
@@ -46,21 +49,33 @@ func print2d(a [][]int, i int) {
 		}
 		fmt.Println()
 	}
+	fmt.Println()
 }
 
-type Substring struct {
-	value      []byte
-	start      int //inclusive
-	end        int //exclusive
-	len        int
-	fullString []byte
+/* Prints the intermediate Substring array using PrettyPrint()
+ * param: a The array to print
+ */
+func printSubstrArr(a []Substring) {
+
+	fmt.Println("PrintSubstrArr:")
+	for _, x := range a {
+		x.PrettyPrint()
+	}
+	fmt.Println()
 }
 
-func compareInter(lcSubstrMatrix [][]int) []Substring {
+/* Calculates the common substrings given a LCS matrix.
+ * This function prefers larger substrings over smaller substrings.
+ * Substrings smaller than length COMPARE_THRESH are disregarded.
+ * param: lcsm The LCS matrix to use.
+ * param: fullString The bytestring of the control string used in the creation of the LCS matrix.
+ * return: An array of substrings calculated from the LCS matrix.
+ */
+func calcCommonSubstrings(lcsm [][]int, fullString []byte) []Substring {
 
 	//Reduce matrix by turning the array of arrays into array of maxes
 	var reduceSm []int
-	for _, x := range lcSubstrMatrix {
+	for _, x := range lcsm {
 
 		max, _ := max(x...)
 		reduceSm = append(reduceSm, max)
@@ -91,15 +106,12 @@ func compareInter(lcSubstrMatrix [][]int) []Substring {
 
 		//Create a substr using that max value
 		substr := Substring{
-			value:      nil, //reduceSm[maxI-max:maxI], //TODO figure out how to elegantly get this info
+			value:      fullString[maxI-max : maxI], //reduceSm[maxI-max:maxI], //TODO figure out how to elegantly get this info
 			start:      maxI - max,
 			end:        maxI,
 			len:        max,
-			fullString: nil, //reduceSm,
+			fullString: fullString, //reduceSm,
 		}
-
-		fmt.Println(substr.end, visited)
-		fmt.Println(reduceSm)
 
 		//Confirm it is a valid substr that doesn't overlap
 		checkVisit := visited[substr.start : substr.end+1]
@@ -123,14 +135,20 @@ func compareInter(lcSubstrMatrix [][]int) []Substring {
 	return substrings
 }
 
-/* x is the one to check against, y is to check */
+/* Determines the size of the largest common substring.
+ * Note: if using for comparison, use x as the primary string, and y as the foreign string
+ * param: x The control string
+ * param: y The string to compare against
+ * return: the intermediate Least Common Suffix matrix
+ * return: the size of the largest common substring
+ */
 func LCSubstr(x []byte, y []byte) ([][]int, int) {
 	m := len(x)
 	n := len(y)
 
-	lcSuff := make([][]int, 0)
+	lcsm := make([][]int, 0)
 	for i := 0; i < m+1; i++ {
-		lcSuff = append(lcSuff, make([]int, n+1))
+		lcsm = append(lcsm, make([]int, n+1))
 	}
 	result := 0 //Store len of longest common substr
 
@@ -139,19 +157,38 @@ func LCSubstr(x []byte, y []byte) ([][]int, int) {
 
 			//1st row/col have no meaning
 			if i == 0 || j == 0 {
-				lcSuff[i][j] = 0
+				lcsm[i][j] = 0
 
 			} else if x[i-1] == y[j-1] {
 
-				lcSuff[i][j] = lcSuff[i-1][j-1] + 1
-				result = int(math.Max(float64(result), float64(lcSuff[i][j])))
+				lcsm[i][j] = lcsm[i-1][j-1] + 1
+				result = int(math.Max(float64(result), float64(lcsm[i][j])))
 
 			} else {
 
-				lcSuff[i][j] = 0
+				lcsm[i][j] = 0
 			}
 		}
 	}
 
-	return lcSuff, result
+	return lcsm, result
+}
+
+/* ********** The Substring type ********** */
+
+type Substring struct {
+	value      []byte
+	start      int //inclusive
+	end        int //exclusive
+	len        int
+	fullString []byte
+}
+
+/* Prints a prettified version of the Substring.
+ * The byte strings are printed as character strings.
+ */
+func (s Substring) PrettyPrint() {
+
+	fmt.Print("{ s: ", s.start, " e: ", s.end, " l: ", s.len,
+		" '", string(s.value), "' of '", string(s.fullString), "' }\n")
 }
