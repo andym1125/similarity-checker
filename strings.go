@@ -5,7 +5,18 @@ import (
 	"math"
 )
 
-const COMPARE_THRESH = 2
+const COMPARE_THRESH = 3 //Exclusive
+
+/* VISITED: 	Used in a substring
+				 CANNOT be used in another substring
+ * MARKED:		Perhaps under threshold, cannot initiate substring;
+ 				 CAN be used in another substring
+ * UNVISITED:	Can initiate substring;
+ 				 CAN be used in another substring
+*/
+const UNVISITED = 0
+const MARKED = 1
+const VISITED = 2
 
 func main() {
 
@@ -16,7 +27,7 @@ func main() {
 
 	a, i := LCSubstr(s1, s2)
 	print2d(a, i)
-	compareInter(a)
+	fmt.Println(compareInter(a))
 
 	// fmt.Println("Old", "Oldie")
 	// print2d(LCSubstr("Old", "Oldie"))
@@ -47,8 +58,7 @@ type Substring struct {
 
 func compareInter(lcSubstrMatrix [][]int) []Substring {
 
-	//Reduce matrix by turning the array of arrays into
-	//   Array of maxes
+	//Reduce matrix by turning the array of arrays into array of maxes
 	var reduceSm []int
 	for _, x := range lcSubstrMatrix {
 
@@ -56,11 +66,61 @@ func compareInter(lcSubstrMatrix [][]int) []Substring {
 		reduceSm = append(reduceSm, max)
 	}
 
-	fmt.Println("compare", reduceSm, len(reduceSm))
+	//Preprocess so that vals under threshold are marked but not visited
+	visited := make([]int, len(reduceSm))
+	for i, _ := range visited {
+
+		if reduceSm[i] < COMPARE_THRESH {
+			visited[i] = MARKED
+		}
+	}
 
 	//Until there are no more empty spaces, find comparisions (above certain threshold)
+	var substrings []Substring
+	for contains(UNVISITED, visited) != -1 {
 
-	return []Substring{}
+		//Find curent max val
+		max := 0
+		maxI := -1
+		for i, a := range reduceSm {
+			if a > max && visited[i] == UNVISITED {
+				max = a
+				maxI = i
+			}
+		}
+
+		//Create a substr using that max value
+		substr := Substring{
+			value:      nil, //reduceSm[maxI-max:maxI], //TODO figure out how to elegantly get this info
+			start:      maxI - max,
+			end:        maxI,
+			len:        max,
+			fullString: nil, //reduceSm,
+		}
+
+		fmt.Println(substr.end, visited)
+		fmt.Println(reduceSm)
+
+		//Confirm it is a valid substr that doesn't overlap
+		checkVisit := visited[substr.start : substr.end+1]
+		if contains(VISITED, checkVisit) != -1 {
+
+			//If invalid, mark all substring as visited
+			for i := substr.start; i < substr.end+1; i++ {
+				visited[i] = int(math.Max(float64(visited[i]), float64(MARKED))) //Don't override if VISITED
+			}
+			continue
+		}
+
+		substrings = append(substrings, substr)
+
+		//Visit indices used in this substr
+		for i := substr.start; i < substr.end+1; i++ {
+			visited[i] = VISITED
+		}
+	}
+
+	return substrings
 }
 
 /* x is the one to check against, y is to check */

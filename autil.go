@@ -3,7 +3,7 @@ package main
 func max(a ...int) (int, int) {
 
 	max := 0
-	idx := 0
+	idx := -1
 	for i := 0; i < len(a); i++ {
 
 		if a[i] > max {
@@ -14,4 +14,16 @@ func max(a ...int) (int, int) {
 	}
 
 	return max, idx
+}
+
+func contains(target int, a []int) int {
+
+	for i, x := range a {
+
+		if x == target {
+			return i
+		}
+	}
+
+	return -1
 }
