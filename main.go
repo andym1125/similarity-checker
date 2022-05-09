@@ -9,6 +9,7 @@ import (
 
 var (
 	buildHandler = http.FileServer(http.Dir("frontend/build"))
+	hashes       [][]byte
 )
 
 func main() {
@@ -34,7 +35,36 @@ func index(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		fmt.Println("Hash: ", hash([]uint8(r.FormValue("txt"))))
+		//Allows for commands
+		switch r.FormValue("txt") {
+		case ".print":
+			fmt.Println(hashes)
+		case ".clear":
+			hashes = [][]byte{}
+			fmt.Println("Cleared storage.")
+		default:
+			h := hash([]uint8(r.FormValue("txt")))
+
+			percent := checkPlagarism(h)
+
+			hashes = append(hashes, h)
+			fmt.Println("Hash:", h, percent)
+		}
+
 		http.ServeFile(w, r, "frontend/build/index.html")
 	}
+}
+
+func checkPlagarism(h []byte) float64 {
+
+	calcCommonSubstrings()
+
+	substrs := []Substring{}
+	for _, a := range hashes {
+		substrs = append(substrs, getCommonSubstrings(h, a)...)
+	}
+
+	s := getPercentage(h, substrs)
+
+	return s
 }
