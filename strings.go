@@ -17,43 +17,43 @@ const UNVISITED = 0
 const MARKED = 1
 const VISITED = 2
 
-func main() {
+//func main() {
 
-	/* Test Percentage/Prune methods */
-	s1 := []byte("I've always wanted to ride my bicycle, and can't wait to ride it up on the highway.")
-	s2 := []byte("On a dark desert highway. I wanted to ride my bicycle.")
-	ssa := getCommonSubstrings(s1, s2)
+/* Test Percentage/Prune methods
+s1 := []byte("I've always wanted to ride my bicycle, and can't wait to ride it up on the highway.")
+s2 := []byte("On a dark desert highway. I wanted to ride my bicycle.")
+ssa := getCommonSubstrings(s1, s2)
 
-	fmt.Println(getPercentage(s1, ssa))
+fmt.Println(getPercentage(s1, ssa))/**/
 
-	/* Test Substring SortByLength
-	s := []Substring{
-		{start: 74, end: 83, len: 9, value: []byte(" highway."), fullString: []byte("I've always wanted to ride my bicycle, and can't wait to ride it up on the highway.")},
-		{start: 7, end: 10, len: 3, value: []byte("way"), fullString: []byte("I've always wanted to ride my bicycle, and can't wait to ride it up on the highway.")},
-		{start: 11, end: 37, len: 26, value: []byte(" wanted to ride my bicycle"), fullString: []byte("I've always wanted to ride my bicycle, and can't wait to ride it up on the highway.")},
-		{start: 48, end: 51, len: 3, value: []byte(" wa"), fullString: []byte("I've always wanted to ride my bicycle, and can't wait to ride it up on the highway.")},
-		{start: 53, end: 62, len: 9, value: []byte(" to ride "), fullString: []byte("I've always wanted to ride my bicycle, and can't wait to ride it up on the highway.")},
-	}
-	SortByLength(&s)
-	printSubstrArr(s)
-	/**/
-
-	/* Test LCS procedures
-	s1 := []byte("I've always wanted to ride my bicycle, and can't wait to ride it up on the highway.")
-	s2 := []byte("On a dark desert highway. I wanted to ride my bicycle.")
-
-	fmt.Println(len(s1), len(s2))
-
-	printSubstrArr(getCommonSubstrings(s1, s2))
-
-	//Intermediate checking
-	// lcsm, i := LCSubstr(s1, s2)
-	// printLCSMatrix(lcsm, i)
-
-	// ssa := calcCommonSubstrings(lcsm, s1)
-	// printSubstrArr(ssa)
-	/**/
+/* Test Substring SortByLength
+s := []Substring{
+	{start: 74, end: 83, len: 9, value: []byte(" highway."), fullString: []byte("I've always wanted to ride my bicycle, and can't wait to ride it up on the highway.")},
+	{start: 7, end: 10, len: 3, value: []byte("way"), fullString: []byte("I've always wanted to ride my bicycle, and can't wait to ride it up on the highway.")},
+	{start: 11, end: 37, len: 26, value: []byte(" wanted to ride my bicycle"), fullString: []byte("I've always wanted to ride my bicycle, and can't wait to ride it up on the highway.")},
+	{start: 48, end: 51, len: 3, value: []byte(" wa"), fullString: []byte("I've always wanted to ride my bicycle, and can't wait to ride it up on the highway.")},
+	{start: 53, end: 62, len: 9, value: []byte(" to ride "), fullString: []byte("I've always wanted to ride my bicycle, and can't wait to ride it up on the highway.")},
 }
+SortByLength(&s)
+printSubstrArr(s)
+/**/
+
+/* Test LCS procedures
+s1 := []byte("I've always wanted to ride my bicycle, and can't wait to ride it up on the highway.")
+s2 := []byte("On a dark desert highway. I wanted to ride my bicycle.")
+
+fmt.Println(len(s1), len(s2))
+
+printSubstrArr(getCommonSubstrings(s1, s2))
+
+//Intermediate checking
+// lcsm, i := LCSubstr(s1, s2)
+// printLCSMatrix(lcsm, i)
+
+// ssa := calcCommonSubstrings(lcsm, s1)
+// printSubstrArr(ssa)
+/**/
+//}
 
 func getCommonSubstrings(control []byte, foreign []byte) []Substring {
 
@@ -71,7 +71,6 @@ func getPercentage(control []byte, overlap []Substring) float64 {
 	}
 
 	return float64(length) / float64(len(control))
-	return 0
 }
 
 /* Ensures that none of the Substrings overlap each other.
@@ -88,7 +87,7 @@ func prune(overlap []Substring) []Substring {
 	SortByLength(&overlap)
 
 	//Visit each, skipping if overlapping another substring
-	length := overlap[0].len
+	length := len(overlap[0].fullString)
 	ret := []Substring{}
 	visit := CreateVisitorMap(length)
 	for _, s := range overlap {
@@ -97,12 +96,11 @@ func prune(overlap []Substring) []Substring {
 			//TODO: throw err
 		}
 
+		//fmt.Println(s)
 		if !visit.IsInRange(s.start, s.end, VISITED) {
 			visit.SetRange(s.start, s.end, VISITED)
 			ret = append(ret, s)
 		}
-
-		visit.Print()
 	}
 
 	return ret
