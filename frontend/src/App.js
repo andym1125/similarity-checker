@@ -10,6 +10,7 @@ function App() {
         <br></br>
         <input type="submit" value="Check for Plagarism"></input>
       </form>
+      <p>Enter some text to see which sections may be plagarized..</p>
     </div>
   );
 }

@@ -61,6 +61,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 			percent := checkPlagarism(h)
 			fmt.Println("Hash:", h, percent)
+			w.Write([]byte("test"))
 		}
 
 		http.ServeFile(w, r, "../frontend/build/index.html")
