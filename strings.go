@@ -70,6 +70,20 @@ func getPercentage(control []byte, overlap []Substring) float64 {
 		length += a.len
 	}
 
+	debug := false
+	if debug {
+
+		fmt.Println("DEBUG getPercentage():")
+
+		for _, substr := range s {
+			substr.PrettyPrint()
+		}
+		fmt.Println("Similar len:", length, "Control len:", len(control))
+		fmt.Println("RETURN:", float64(length)/float64(len(control)))
+
+		fmt.Println()
+	}
+
 	return float64(length) / float64(len(control))
 }
 
@@ -80,7 +94,7 @@ func getPercentage(control []byte, overlap []Substring) float64 {
 func prune(overlap []Substring) []Substring {
 
 	if len(overlap) == 0 {
-		//TODO throw error
+		return []Substring{} //Return empty array if passed empty array
 	}
 
 	//Want to visit larger substrings before smaller
@@ -92,11 +106,11 @@ func prune(overlap []Substring) []Substring {
 	visit := CreateVisitorMap(length)
 	for _, s := range overlap {
 
-		if s.len != length {
-			//TODO: throw err
+		if len(s.fullString) != length {
+			panic(fmt.Sprintf("prune(): Substring had a length of %d when expected length of %d",
+				len(s.fullString), length))
 		}
 
-		//fmt.Println(s)
 		if !visit.IsInRange(s.start, s.end, VISITED) {
 			visit.SetRange(s.start, s.end, VISITED)
 			ret = append(ret, s)
