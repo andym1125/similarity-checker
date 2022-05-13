@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	buildHandler = http.FileServer(http.Dir("frontend/build"))
+	buildHandler = http.FileServer(http.Dir("../frontend/build"))
 	hashes       [][]byte
 	doStoreHash  = false
 )
@@ -63,7 +63,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Hash:", h, percent)
 		}
 
-		http.ServeFile(w, r, "frontend/build/index.html")
+		http.ServeFile(w, r, "../frontend/build/index.html")
 	}
 }
 
@@ -90,8 +90,8 @@ func directStoreHash(h []byte) {
 
 func loadReferences() {
 
-	loadFile("files/rollinghash.txt")
-	loadFile("files/shakespeare.txt")
+	loadFile("../files/rollinghash.txt")
+	loadFile("../files/shakespeare.txt")
 }
 
 func loadFile(path string) {
