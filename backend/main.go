@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	_ "fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -14,10 +16,25 @@ var (
 	doStoreHash  = false
 )
 
+type CtphResponse struct {
+	Percentage float64
+	Substrings []Substring
+	Control    string
+}
+
+type TestResponse struct {
+	Test string `json:"test"`
+}
+
+type CtphRequest struct {
+	Text string `json:"text"`
+}
+
 func main() {
 
 	r := http.NewServeMux()
-	r.HandleFunc("/", index)
+	r.HandleFunc("/", buildHandler.ServeHTTP)
+	r.HandleFunc("/process", processHandler)
 
 	loadReferences()
 
@@ -30,41 +47,73 @@ func index(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 
 		buildHandler.ServeHTTP(w, r)
-		//http.ServeFile(w, r, "frontend/build/index.html")
+		http.ServeFile(w, r, "frontend/build/index.html")
 		fmt.Println("Get req", r.URL)
 	} else if r.Method == "POST" {
 
-		if err := r.ParseForm(); err != nil {
-			fmt.Println("ParseForm() err: ", err)
-			return
-		}
+		// if err := r.ParseForm(); err != nil {
+		// 	fmt.Println("ParseForm() err: ", err)
+		// 	return
+		// }
 
-		//Allows for commands
-		switch r.FormValue("txt") {
-		case ".print":
-			fmt.Println(hashes)
+		// //Allows for commands
+		// switch r.FormValue("txt") {
+		// case ".print":
+		// 	fmt.Println(hashes)
 
-		case ".clear":
-			hashes = [][]byte{}
-			fmt.Println("Cleared storage.")
+		// case ".clear":
+		// 	hashes = [][]byte{}
+		// 	fmt.Println("Cleared storage.")
 
-		case ".store":
-			doStoreHash = !doStoreHash
-			fmt.Println("Store Hashes:", doStoreHash)
+		// case ".store":
+		// 	doStoreHash = !doStoreHash
+		// 	fmt.Println("Store Hashes:", doStoreHash)
 
-		default:
-			h := hash([]uint8(r.FormValue("txt")))
-			if doStoreHash {
-				directStoreHash(h)
-				fmt.Println("Storing hash...")
-			}
+		// default:
+		// 	h := hash([]uint8(r.FormValue("txt")))
+		// 	if doStoreHash {
+		// 		directStoreHash(h)
+		// 		fmt.Println("Storing hash...")
+		// 	}
 
-			percent := checkPlagarism(h)
-			fmt.Println("Hash:", h, percent)
-		}
+		// 	percent := checkPlagarism(h)
+		// 	fmt.Println("Hash:", h, percent)
+		// }
 
 		http.ServeFile(w, r, "../frontend/build/index.html")
 	}
+}
+
+func processHandler(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println("Anything")
+
+	//Enable cors
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	//Read the body
+	bodyByte, bodyErr := io.ReadAll(r.Body)
+	if bodyErr != nil {
+		panic(bodyErr)
+	}
+
+	//Unmarshal body
+	var body CtphRequest
+	unmarshalErr := json.Unmarshal(bodyByte, &body)
+	if unmarshalErr != nil {
+		panic(unmarshalErr)
+	}
+
+	fmt.Println("Request received: ", body.Text)
+
+	//Marshal response
+	processedRes := TestResponse{"hello world"}
+	marshalByte, marshalErr := json.Marshal(processedRes)
+	if marshalErr != nil {
+		panic(marshalErr)
+	}
+
+	w.Write(marshalByte)
 }
 
 func checkPlagarism(h []byte) float64 {

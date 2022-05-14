@@ -22,21 +22,27 @@ function App()
 
   let processInput = debounce(content =>
   {
-    let substrs = [
+    let fetchParams = 
+    {
+      method: "POST",
+      //mode: "cors",
+      headers: 
       {
-        start: 1,
-        end: 3,
-        source: 1
+        "Content-type": "application/json; charset=UTF-8",
+        //"Access-Control-Allow-Origin": "*"
       },
-      {
-        start: 4,
-        end: 5,
-        source: 2
-      }
-    ]
+      body: JSON.stringify({
+        text: content
+      })
+    }
 
-    fetch('https://dummyjson.com/products')
-      .then(response => substrs)
+    alert("fetch")
+
+    fetch('http://localhost:8080/process', fetchParams)
+      .then(response => {
+        console.log(response)
+        return response.json()
+      })
       .then(data => 
       {
         /* Substrings should be wrapped in HTML */
@@ -62,7 +68,8 @@ function App()
 
         console.log(els)
         setFmtContent(els)
-      });
+      })
+      .catch(err => alert(err));
   }, 1000);
 
   return (
