@@ -47,29 +47,42 @@ function App()
       })
       .then(data => 
       {
-        /* Substrings should be wrapped in HTML */
-        let els = []
-        let lastSlice = 0
-        //PRECONDITION: None of the substrings overlap
-        for(let i = 0; i < content.length; i++)
-        {
-          //Find one with start at current index
-          for(let j = 0; j < data.length; j++)
-          {
-            if(data[j].start === i)
-            {
-              els.push(content.slice(lastSlice, data[j].start))
-              els.push(<span class="highlight">{content.slice(data[j].start, data[j].end)}</span>)
-              lastSlice = data[j].end;
-              i = data[j].end - 1;
-              break;
-            }
-          }
-        }
-        els.push(content.slice(lastSlice))
+        let splitContent = content.split(/(\w+\s+)/).filter(e => e.length > 1)
 
-        console.log("Format content: " + els)
-        setFmtContent(els)
+        for(let i = 0; i < data.length; i++)
+        {
+          splitContent.splice(
+            data[i].start, 
+            data[i].len, 
+            (<span class="highlight">{splitContent.slice(data[i].start, data[i].end)}</span>))
+        }
+
+
+
+
+        // /* Substrings should be wrapped in HTML */
+        // let els = []
+        // let lastSlice = 0
+        // //PRECONDITION: None of the substrings overlap
+        // for(let i = 0; i < content.length; i++)
+        // {
+        //   //Find one with start at current index
+        //   for(let j = 0; j < data.length; j++)
+        //   {
+        //     if(data[j].start === i)
+        //     {
+        //       els.push(content.slice(lastSlice, data[j].start))
+        //       els.push(<span class="highlight">{content.slice(data[j].start, data[j].end)}</span>)
+        //       lastSlice = data[j].end;
+        //       i = data[j].end - 1;
+        //       break;
+        //     }
+        //   }
+        // }
+        // els.push(content.slice(lastSlice))
+
+        console.log("Format content: " + splitContent)
+        setFmtContent(splitContent)
       })
       .catch(err => alert(err));
   }, 1000);
