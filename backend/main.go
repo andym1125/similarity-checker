@@ -19,7 +19,7 @@ var (
 type CtphResponse struct {
 	Percentage float64
 	Substrings []Substring
-	Control    string
+	Control    []byte
 }
 
 type TestResponse struct {
@@ -106,14 +106,36 @@ func processHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Request received: ", body.Text)
 
+	//Process request
+	var processedRes CtphResponse
+
+	hashOfTxt := hash([]byte(body.Text))
+	allCommonSubstrs := getAllCommonSubstrings(hashOfTxt)
+
+	processedRes.Substrings = allCommonSubstrs
+	processedRes.Control = hashOfTxt
+	processedRes.Percentage = getPercentage(hashOfTxt, allCommonSubstrs)
+
+	fmt.Println("Hash of input:", hashOfTxt)
+
 	//Marshal response
-	processedRes := TestResponse{"hello world"}
+	//processedRes := TestResponse{"hello world"}
 	marshalByte, marshalErr := json.Marshal(processedRes)
 	if marshalErr != nil {
 		panic(marshalErr)
 	}
 
 	w.Write(marshalByte)
+}
+
+func getAllCommonSubstrings(control []byte) []Substring {
+
+	var unparsedSubstrs []Substring
+	for _, h := range hashes {
+		unparsedSubstrs = append(unparsedSubstrs, getCommonSubstrings(control, h)...)
+	}
+
+	return prune(unparsedSubstrs)
 }
 
 func checkPlagarism(h []byte) float64 {

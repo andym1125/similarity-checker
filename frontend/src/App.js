@@ -39,9 +39,11 @@ function App()
     alert("fetch")
 
     fetch('http://localhost:8080/process', fetchParams)
-      .then(response => {
-        console.log(response)
-        return response.json()
+    /* Get substr array from body */
+      .then(response => response.json())
+      .then(json => {
+        console.log(json.Substrings)
+        return json.Substrings
       })
       .then(data => 
       {
@@ -66,7 +68,7 @@ function App()
         }
         els.push(content.slice(lastSlice))
 
-        console.log(els)
+        console.log("Format content: " + els)
         setFmtContent(els)
       })
       .catch(err => alert(err));

@@ -20,7 +20,7 @@ func init() {
 	}
 }/**/
 
-func hash(data []uint8) []uint8 {
+func hash(data []byte) []byte {
 
 	hasher := md5.New()
 	var output []uint8

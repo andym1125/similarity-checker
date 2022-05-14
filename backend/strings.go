@@ -67,7 +67,7 @@ func getPercentage(control []byte, overlap []Substring) float64 {
 
 	length := 0
 	for _, a := range s {
-		length += a.len
+		length += a.Len
 	}
 
 	debug := false
@@ -101,18 +101,18 @@ func prune(overlap []Substring) []Substring {
 	SortByLength(&overlap)
 
 	//Visit each, skipping if overlapping another substring
-	length := len(overlap[0].fullString)
+	length := len(overlap[0].FullString)
 	ret := []Substring{}
 	visit := CreateVisitorMap(length)
 	for _, s := range overlap {
 
-		if len(s.fullString) != length {
+		if len(s.FullString) != length {
 			panic(fmt.Sprintf("prune(): Substring had a length of %d when expected length of %d",
-				len(s.fullString), length))
+				len(s.FullString), length))
 		}
 
-		if !visit.IsInRange(s.start, s.end, VISITED) {
-			visit.SetRange(s.start, s.end, VISITED)
+		if !visit.IsInRange(s.Start, s.End, VISITED) {
+			visit.SetRange(s.Start, s.End, VISITED)
 			ret = append(ret, s)
 		}
 	}
@@ -195,19 +195,19 @@ func calcCommonSubstrings(lcsm [][]int, fullString []byte) []Substring {
 
 		//Create a substr using that max value
 		substr := Substring{
-			value:      fullString[maxI-max : maxI], //reduceSm[maxI-max:maxI], //TODO figure out how to elegantly get this info
-			start:      maxI - max,
-			end:        maxI,
-			len:        max,
-			fullString: fullString, //reduceSm,
+			Value:      fullString[maxI-max : maxI], //reduceSm[maxI-max:maxI], //TODO figure out how to elegantly get this info
+			Start:      maxI - max,
+			End:        maxI,
+			Len:        max,
+			FullString: fullString, //reduceSm,
 		}
 
 		//Confirm it is a valid substr that doesn't overlap
-		checkVisit := visited[substr.start : substr.end+1]
+		checkVisit := visited[substr.Start : substr.End+1]
 		if contains(VISITED, checkVisit) != -1 {
 
 			//If invalid, mark all substring as visited
-			for i := substr.start; i < substr.end+1; i++ {
+			for i := substr.Start; i < substr.End+1; i++ {
 				visited[i] = int(math.Max(float64(visited[i]), float64(MARKED))) //Don't override if VISITED
 			}
 			continue
@@ -216,7 +216,7 @@ func calcCommonSubstrings(lcsm [][]int, fullString []byte) []Substring {
 		substrings = append(substrings, substr)
 
 		//Visit indices used in this substr
-		for i := substr.start; i < substr.end+1; i++ {
+		for i := substr.Start; i < substr.End+1; i++ {
 			visited[i] = VISITED
 		}
 	}
@@ -266,11 +266,11 @@ func LCSubstr(x []byte, y []byte) ([][]int, int) {
 /* ********** The Substring type ********** */
 
 type Substring struct {
-	value      []byte
-	start      int //inclusive
-	end        int //exclusive
-	len        int
-	fullString []byte
+	Value      []byte `json:"value"`
+	Start      int    `json:"start"` //inclusive
+	End        int    `json:"end"`   //exclusive
+	Len        int    `json:"len"`
+	FullString []byte `json:"fullString"`
 }
 
 func SortByLength(list *[]Substring) {
@@ -284,12 +284,12 @@ func SortByLength(list *[]Substring) {
 	for cursor := 0; cursor < len(l); cursor++ {
 
 		//Find max len
-		max := l[cursor].len
+		max := l[cursor].Len
 		idx := cursor
 		for i := cursor; i < len(*list); i++ {
 
-			if max < l[i].len {
-				max = l[i].len
+			if max < l[i].Len {
+				max = l[i].Len
 				idx = i
 			}
 		}
@@ -306,8 +306,8 @@ func SortByLength(list *[]Substring) {
  */
 func (s Substring) PrettyPrint() {
 
-	fmt.Print("{ s: ", s.start, " e: ", s.end, " l: ", s.len,
-		" '", string(s.value), "' of '", string(s.fullString), "' }\n")
+	fmt.Print("{ s: ", s.Start, " e: ", s.End, " l: ", s.Len,
+		" '", string(s.Value), "' of '", string(s.FullString), "' }\n")
 }
 
 /* ********** VisitorMap type ********** */
