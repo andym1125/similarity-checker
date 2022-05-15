@@ -67,7 +67,7 @@ func processHandler(w http.ResponseWriter, r *http.Request) {
 
 	processedRes.Substrings = allCommonSubstrs
 	processedRes.Control = hashOfTxt
-	processedRes.Percentage = getPercentage(hashOfTxt, allCommonSubstrs)
+	processedRes.Percentage = float64(int(10000*getPercentage(hashOfTxt, allCommonSubstrs))) / 10000
 
 	fmt.Println("Hash of input:", hashOfTxt)
 

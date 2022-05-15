@@ -1,5 +1,4 @@
 Rolling hashes are an emerging technology that have the potential to change the world. It will be very interesting to 
 see hw this emerging technology effects fields such as commerce, web indexing, and many more fields.
 One of the main applications is the Rabin–Karp string search algorithm.
-Another popular application is the rsync program, which uses a checksum based on Mark Adler's 
-adler-32 as its rolling hash.
+Another popular application is the rsync program, which uses a checksum based on Mark Adler's adler-32 as its rolling hash.
