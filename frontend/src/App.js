@@ -6,13 +6,7 @@ function App()
 {
   const [taContent, setTaContent] = useState();
   const [fmtContent, setFmtContent] = useState();
-
-  function checkPlagarism()
-  {
-
-    alert("test")
-
-  }
+  const [percent, setPercent] = useState();
 
   function onTaChange(e)
   {
@@ -25,24 +19,20 @@ function App()
     let fetchParams = 
     {
       method: "POST",
-      //mode: "cors",
       headers: 
       {
         "Content-type": "application/json; charset=UTF-8",
-        //"Access-Control-Allow-Origin": "*"
       },
       body: JSON.stringify({
         text: content
       })
     }
 
-    alert("fetch")
-
     fetch('http://localhost:8080/process', fetchParams)
-    /* Get substr array from body */
       .then(response => response.json())
       .then(json => {
         console.log(json.Substrings)
+        setPercent(json.Percentage*100)
         return json.Substrings
       })
       .then(data => 
@@ -57,30 +47,6 @@ function App()
             (<span class="highlight">{splitContent.slice(data[i].start, data[i].end)}</span>))
         }
 
-
-
-
-        // /* Substrings should be wrapped in HTML */
-        // let els = []
-        // let lastSlice = 0
-        // //PRECONDITION: None of the substrings overlap
-        // for(let i = 0; i < content.length; i++)
-        // {
-        //   //Find one with start at current index
-        //   for(let j = 0; j < data.length; j++)
-        //   {
-        //     if(data[j].start === i)
-        //     {
-        //       els.push(content.slice(lastSlice, data[j].start))
-        //       els.push(<span class="highlight">{content.slice(data[j].start, data[j].end)}</span>)
-        //       lastSlice = data[j].end;
-        //       i = data[j].end - 1;
-        //       break;
-        //     }
-        //   }
-        // }
-        // els.push(content.slice(lastSlice))
-
         console.log("Format content: " + splitContent)
         setFmtContent(splitContent)
       })
@@ -92,7 +58,10 @@ function App()
       <h1>Enter text to check for plagarism:</h1>
       <textarea id="content" name="content" onChange={onTaChange} value={taContent}></textarea>
       <br></br>
-      <button onClick={checkPlagarism}>Check for Plagarism</button>
+      <p>We think it may be</p>
+      <h1>{percent}% Similar</h1>
+      <p>To other documents</p>
+      <br></br>
       <p>{fmtContent}</p>
     </div>
   );
