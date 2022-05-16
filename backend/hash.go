@@ -6,20 +6,6 @@ import (
 	"math"
 )
 
-/*var uniset [][]uint8
-
-func init() {
-
-	var a, b, c uint8
-	for a = 0; a < 128; a++ {
-		for b = 0; b < 128; b++ {
-			for c = 0; c < 128; c++ {
-				uniset = append(uniset, []uint8{a, b, c})
-			}
-		}
-	}
-}/**/
-
 func hash(data []byte) []byte {
 
 	hasher := md5.New()
@@ -27,12 +13,10 @@ func hash(data []byte) []byte {
 	var currStr []uint8
 	for i := 0; i < len(data); i++ {
 
-		//fmt.Println("h", data[i])
-
 		/* Break words on control characters, ie whitespace */
 		if isControl(data[i]) {
 
-			hasher.Write(currStr) //TODO not most concise way to do this. Should leverage pkg hash better
+			hasher.Write(currStr)
 			output = append(output, hasher.Sum([]byte{})[0])
 
 			currStr = []uint8{}
@@ -47,11 +31,21 @@ func hash(data []byte) []byte {
 	return output
 }
 
+/* Returns whether the given character is a control (breakable) character.
+ * param: a The character to test.
+ * return: Whether the character is a control character.
+ */
 func isControl(a uint8) bool {
 
 	return a == 32 || a == 10 || a == 13
 }
 
+/* Calculates how many data points are matched up in each hash.
+ * This is a "dumb" comparison and was used for early testing.
+ * This function prints its output.
+ * param: a The control string
+ * param: b The foreign string
+ */
 func quickCompare(a []uint8, b []uint8) {
 
 	amap := make(map[uint8]int)
@@ -85,19 +79,19 @@ func quickCompare(a []uint8, b []uint8) {
 	)
 }
 
-func compare(a []uint8, b []uint8) {
-	for i := 0; i < int(math.Max(float64(len(a)), float64(len(b)))); i++ {
+// func compare(a []uint8, b []uint8) {
+// 	for i := 0; i < int(math.Max(float64(len(a)), float64(len(b)))); i++ {
 
-		if a[i] == 97 {
-			fmt.Print("-", "\t")
-		} else {
-			fmt.Print(a[i], "\t")
-		}
+// 		if a[i] == 97 {
+// 			fmt.Print("-", "\t")
+// 		} else {
+// 			fmt.Print(a[i], "\t")
+// 		}
 
-		if b[i] == 97 {
-			fmt.Println("-")
-		} else {
-			fmt.Println(b[i])
-		}
-	}
-}
+// 		if b[i] == 97 {
+// 			fmt.Println("-")
+// 		} else {
+// 			fmt.Println(b[i])
+// 		}
+// 	}
+// }

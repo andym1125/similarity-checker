@@ -12,7 +12,6 @@ import (
 var (
 	buildHandler = http.FileServer(http.Dir("../frontend/build"))
 	hashes       [][]byte
-	doStoreHash  = false
 )
 
 type CtphResponse struct {
@@ -38,8 +37,6 @@ func main() {
 }
 
 func processHandler(w http.ResponseWriter, r *http.Request) {
-
-	fmt.Println("Anything")
 
 	//Enable cors
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -90,17 +87,6 @@ func getAllCommonSubstrings(control []byte) []Substring {
 	return prune(unparsedSubstrs)
 }
 
-func storeHash(f []byte) []byte {
-
-	h := hash(f)
-	hashes = append(hashes, h)
-	return h
-}
-
-func directStoreHash(h []byte) {
-	hashes = append(hashes, h)
-}
-
 /* ********** File Handling ********** */
 
 func loadReferences() {
@@ -117,5 +103,5 @@ func loadFile(path string) {
 		return
 	}
 
-	storeHash(data)
+	hashes = append(hashes, hash(data))
 }
