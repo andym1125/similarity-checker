@@ -78,20 +78,3 @@ func quickCompare(a []uint8, b []uint8) {
 		dataPoints,
 	)
 }
-
-// func compare(a []uint8, b []uint8) {
-// 	for i := 0; i < int(math.Max(float64(len(a)), float64(len(b)))); i++ {
-
-// 		if a[i] == 97 {
-// 			fmt.Print("-", "\t")
-// 		} else {
-// 			fmt.Print(a[i], "\t")
-// 		}
-
-// 		if b[i] == 97 {
-// 			fmt.Println("-")
-// 		} else {
-// 			fmt.Println(b[i])
-// 		}
-// 	}
-// }
